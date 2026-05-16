@@ -58,6 +58,16 @@ python scripts/preprocess.py
 - Consider adding a `config` file or CLI flags to `scrape_reviews.py` for more flexible scraping (app IDs, country, language, count).
 - Add tests under `tests/` and CI workflows for reproducibility.
 
+**Recent updates (delta)**
+- Added `scripts/themes.py`: a small, import-safe helper `assign_theme(text)` that assigns a theme label (e.g. "Login Issues", "Performance Issues", "UI/UX") using keyword matching. It is used by the sentiment/theme analysis workflow and can be replaced with a ML-based classifier later.
+- Fixed import path in `notebooks/02_sentiment_analysis.ipynb` so notebooks import utilities from the `scripts/` folder correctly.
+- Cleaned up `scripts/themes.py` to remove accidental top-level analysis code; the module is now safe to import from notebooks and scripts.
+
+If you'd like, I can also:
+- run the notebooks end-to-end and save outputs (e.g., a `reviews_with_sentiment.csv`),
+- replace `assign_theme()` with a trained classifier, or
+- add CLI flags and configuration for the scraper.
+
 If you want, I can:
 - run the scripts to regenerate datasets,
 - expand the `scripts/README.md` and `notebooks/README.md`, or
