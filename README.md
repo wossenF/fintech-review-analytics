@@ -45,6 +45,8 @@ python scripts/preprocess.py
 - `scripts/scrape_reviews.py`: Uses `google_play_scraper` to pull up to a configured number of reviews for the apps listed in the `APPS` mapping. Results are saved to [data/raw/reviews_raw.csv](data/raw/reviews_raw.csv).
 - `scripts/preprocess.py`: Loads `data/raw/reviews_raw.csv`, removes duplicates/missing values, normalizes dates, and writes [data/cleaned/reviews_clean.csv](data/cleaned/reviews_clean.csv).
 
+- `scripts/db_insert.py`: Loads `data/processed/reviews_with_analysis.csv` and inserts bank and review records into a PostgreSQL database. See the **Database Insertion** section below for usage.
+
 **Notebooks** (brief)
 - `01_data_exploration.ipynb`: Initial data checks and distributions.
 - `02_sentiment_analysis.ipynb`: Sentiment classification experiments and metrics.
@@ -72,4 +74,27 @@ If you want, I can:
 - run the scripts to regenerate datasets,
 - expand the `scripts/README.md` and `notebooks/README.md`, or
 - add a small CLI wrapper for the pipeline.
+
+**Database Insertion**
+
+- Purpose: insert processed review rows into PostgreSQL tables `banks` and `reviews`.
+- Location: `scripts/db_insert.py` — the script now:
+	- uses an absolute project-root-relative path to find `data/processed/reviews_with_analysis.csv`,
+	- accepts an override DB URL via the `DATABASE_URL` environment variable,
+	- maps CSV `bank` values to `bank_name` and creates `app_name` before inserting,
+	- provides sensible defaults for missing `date` or `source` columns to avoid crashes.
+
+Usage example:
+
+```bash
+# create the DB (if needed) and tables using the provided SQL
+psql -U postgres -f scripts/db_setup.sql
+
+# optional: set custom DB connection string
+export DATABASE_URL="postgresql+psycopg2://postgres:password@localhost:5432/bank_reviews"
+
+python scripts/db_insert.py
+```
+
+Note: the script expects the `banks` table to have a `bank_id` primary key and a `bank_name` column (see `scripts/db_setup.sql`). If your processed CSV is missing columns like `date` or `source`, the script will insert defaults instead of failing.
 
